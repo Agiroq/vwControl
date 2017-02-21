@@ -10,7 +10,8 @@ app = Flask(__name__)
 mqttc=mqtt.Client()
 mqttc.connect("localhost",1883,60)
 mqttc.loop_start()
-
+# create the time variable
+heat_time = 10
 # Create a dictionary called pins to store the pin number, name, and pin state:
 pins = {
    4 : {'name' : 'GPIO 4', 'board' : 'esp8266', 'topic' : 'esp8266/4', 'state' : 'False'},
@@ -20,6 +21,7 @@ pins = {
 # Put the pin dictionary into the template data dictionary:
 templateData = {
    'pins' : pins
+   'heat_time' : heat_time
    }
 
 @app.route("/")
@@ -53,4 +55,3 @@ def action(board, changePin, action):
 
 if __name__ == "__main__":
    app.run(host='0.0.0.0', port=8181, debug=True)
-

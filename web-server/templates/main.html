@@ -7,13 +7,19 @@
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
    <!-- Latest compiled and minified JavaScript -->
    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-   <meta name="viewport" content="width=device-width, initial-scale=1">
+   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+   <script type="text/javascript" charset="utf-8">
+     $(document).ready(function(){
+       $("#heat_time").
+     });
+   </script>
+ <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
    <h1>RPi Web Server - ESP8266 MQTT</h1>
    <h2>Time of heater</h2>
-   <input id="heater" type="range" min="5" max="15" value="0" />
+   <input id="heat_time" type="range" min="5" max="15" value={{heat_time}} />
    {% for pin in pins %}
    <h2>{{ pins[pin].name }}
    {% if pins[pin].state == 'True' %}
