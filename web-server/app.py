@@ -5,6 +5,7 @@
 
 import paho.mqtt.client as mqtt
 from flask import Flask, render_template, request
+from flask.ext.socketio import SocketIO, emit
 app = Flask(__name__)
 
 mqttc=mqtt.Client()
@@ -52,6 +53,11 @@ def action(board, changePin, action):
    }
 
    return render_template('main.html', **templateData)
+
+@socketio.on('heatT')
+def heat_T(message):
+    heat_time = message['value']
+    emit('update value', message, broadcast=True)
 
 if __name__ == "__main__":
    app.run(host='0.0.0.0', port=8181, debug=True)
