@@ -1,13 +1,15 @@
 /*****
- 
+
  All the resources for this project:
  https://rntlab.com/
- 
+
 *****/
 
 // Loading the ESP8266WiFi library and the PubSubClient library
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <Time.h>
+#include <TimeAlarms.h>
 
 // Change the credentials below, so your ESP8266 connects to your router
 const char* ssid = "C_D_Home";
@@ -19,10 +21,13 @@ const char* mqtt_server = "192.168.0.14";
 // Initializes the espClient
 WiFiClient espClient;
 PubSubClient client(espClient);
-
+// Heating time
+int heat_time = 10;
+bool adding = False;
 // Connect an LED to each GPIO of your ESP8266
+const int butt_add = 13;
 const int ledGPIO5 = 5;
-const int ledGPIO4 = 4;
+const int heater = 4;
 
 // Don't change the function below. This functions connects your ESP8266 to your router
 void setup_wifi() {
@@ -40,16 +45,30 @@ void setup_wifi() {
   Serial.print("WiFi connected - ESP IP address: ");
   Serial.println(WiFi.localIP());
 }
+//function that trigers heater
+void heater_stop(){
+  digitalWrite(heater, LOW);
+}
+
+//calculte the time
+int calc_time(int num){
+  if (num < 5){
+    num = 5;
+  }
+  return num % 16;
+}
+
+
 
 // This functions is executed when some device publishes a message to a topic that your ESP8266 is subscribed to
-// Change the function below to add logic to your program, so when a device publishes a message to a topic that 
+// Change the function below to add logic to your program, so when a device publishes a message to a topic that
 // your ESP8266 is subscribed you can actually do something
 void callback(String topic, byte* message, unsigned int length) {
   Serial.print("Message arrived on topic: ");
   Serial.print(topic);
   Serial.print(". Message: ");
   String messageTemp;
-  
+
   for (int i = 0; i < length; i++) {
     Serial.print((char)message[i]);
     messageTemp += (char)message[i];
@@ -60,14 +79,11 @@ void callback(String topic, byte* message, unsigned int length) {
 
   // If a message is received on the topic home/office/esp1/gpio2, you check if the message is either 1 or 0. Turns the ESP GPIO according to the message
   if(topic=="esp8266/4"){
-      Serial.print("Changing GPIO 4 to ");
-      if(messageTemp == "1"){
-        digitalWrite(ledGPIO4, HIGH);
+      Serial.print("Changing heater (GPIO 4) to ");
+      if(messageTemp){
+        digitalWrite(heater, HIGH);
         Serial.print("On");
-      }
-      else if(messageTemp == "0"){
-        digitalWrite(ledGPIO4, LOW);
-        Serial.print("Off");
+        Alarm.timerOnce(0, messageTemp, 0, heater_stop);
       }
   }
   if(topic=="esp8266/5"){
@@ -85,7 +101,7 @@ void callback(String topic, byte* message, unsigned int length) {
 }
 
 // This functions reconnects your ESP8266 to your MQTT broker
-// Change the function below if you want to subscribe to more topics with your ESP8266 
+// Change the function below if you want to subscribe to more topics with your ESP8266
 void reconnect() {
   // Loop until we're reconnected
   while (!client.connected()) {
@@ -105,7 +121,7 @@ void reconnect() {
      THE SECTION IN loop() function should match your device name
     */
     if (client.connect("ESP8266Client")) {
-      Serial.println("connected");  
+      Serial.println("connected");
       // Subscribe or resubscribe to a topic
       // You can subscribe to more topics (to control more LEDs in this example)
       client.subscribe("esp8266/4");
@@ -124,16 +140,17 @@ void reconnect() {
 // Sets your mqtt broker and sets the callback function
 // The callback function is what receives messages and actually controls the LEDs
 void setup() {
-  pinMode(ledGPIO4, OUTPUT);
+  pinMode(heater, OUTPUT);
   pinMode(ledGPIO5, OUTPUT);
-  
+  pinMode(butt_add, INPUT);
+
   Serial.begin(115200);
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
 }
 
-// For this project, you don't need to change anything in the loop function. 
+// For this project, you don't need to change anything in the loop function.
 // Basically it ensures that you ESP is connected to your broker
 void loop() {
   if (!client.connected()) {
@@ -154,5 +171,13 @@ void loop() {
      THE SECTION IN recionnect() function should match your device name
     */
     client.connect("ESP8266Client");
-}
 
+  if(butt_add == HIGH && adding == False){
+    adding = True;
+    heat_time = calc_time(heat_time + 1);
+  }
+  else if(butt_add == LOW && adding == True){
+    adding = False;
+  }
+
+}

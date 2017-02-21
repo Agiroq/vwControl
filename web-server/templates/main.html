@@ -34,7 +34,7 @@
 <body>
    <h1>RPi Web Server - ESP8266 MQTT</h1>
    <h2>Time of heater</h2>
-   <input id="heat_time" type="range" min="5" max="15" value={{heat_time}} />
+   <input id="heat_time" type="range" min="5" max="15" value={{ heat_time }} />
    {% for pin in pins %}
    <h2>{{ pins[pin].name }}
    {% if pins[pin].state == 'True' %}

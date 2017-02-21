@@ -15,13 +15,13 @@ mqttc.loop_start()
 heat_time = 10
 # Create a dictionary called pins to store the pin number, name, and pin state:
 pins = {
-   4 : {'name' : 'GPIO 4', 'board' : 'esp8266', 'topic' : 'esp8266/4', 'state' : 'False'},
+   4 : {'name' : 'heater', 'board' : 'esp8266', 'topic' : 'esp8266/4', 'state' : heat_time},
    5 : {'name' : 'GPIO 5', 'board' : 'esp8266', 'topic' : 'esp8266/5', 'state' : 'False'}
    }
 
 # Put the pin dictionary into the template data dictionary:
 templateData = {
-   'pins' : pins
+   'pins' : pins,
    'heat_time' : heat_time
    }
 
@@ -39,24 +39,25 @@ def action(board, changePin, action):
    # Get the device name for the pin being changed:
    devicePin = pins[changePin]['name']
    # If the action part of the URL is "on," execute the code indented below:
-   if action == "1" and board == 'esp8266':
-      mqttc.publish(pins[changePin]['topic'],"1")
-      pins[changePin]['state'] = 'True'
 
-   if action == "0" and board == 'esp8266':
-      mqttc.publish(pins[changePin]['topic'],"0")
-      pins[changePin]['state'] = 'False'
+   if pins[changePin] == 4 and board == 'ep8266':
+      mqttc.publish(pins[changePin]['topic'], action)
+
+   if pins[changePin] == 5 and board == 'esp8266':
+      mqttc.publish(pins[changePin]['topic'], action)
+      pins[changePin]['state'] = 'True'
 
    # Along with the pin dictionary, put the message into the template data dictionary:
    templateData = {
       'pins' : pins
+      'heat_time' : heat_time
    }
 
    return render_template('main.html', **templateData)
 
 @socketio.on('heatT')
 def heat_T(message):
-    heat_time = message['value']
+    heat_time = message['data']
     emit('update value', message, broadcast=True)
 
 if __name__ == "__main__":
