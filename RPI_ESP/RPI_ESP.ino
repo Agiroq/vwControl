@@ -21,9 +21,11 @@ const char* mqtt_server = "192.168.0.14";
 // Initializes the espClient
 WiFiClient espClient;
 PubSubClient client(espClient);
+
 // Heating time
 int heat_time = 10;
 bool adding = False;
+
 // Connect an LED to each GPIO of your ESP8266
 const int butt_add = 13;
 const int ledGPIO5 = 5;
